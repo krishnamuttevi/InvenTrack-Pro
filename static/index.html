@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvenTrack Pro - Professional Inventory Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-gradient: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(59, 130, 246, 0.8));
+            --secondary-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(34, 197, 94, 0.8));
+            --danger-gradient: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.8));
+            --warning-gradient: linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.8));
+            --bg-primary: rgba(249, 250, 251, 0.95);
+            --bg-secondary: rgba(255, 255, 255, 0.98);
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: rgba(229, 231, 235, 0.8);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .header {
+            background: var(--primary-gradient);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px 0;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+        
+        .header .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 18px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            border: none;
+            background: transparent;
+            font-size: 1.05rem;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .tab.active {
+            background: var(--bg-secondary);
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(37, 99, 235, 0.05);
+            color: #2563eb;
+        }
+        
+        .tab-content {
+            display: none;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        .card h3 {
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card h4 {
+            color: #2563eb;
+            margin-bottom: 20px;
+            margin-top: 35px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(37, 99, 235, 0.15);
+            background: linear-gradient(to right, rgba(37, 99, 235, 0.05), transparent);
+            padding-left: 15px;
+            margin-left: -15px;
+            margin-right: -15px;
+            padding-right: 15px;
+        }
+        
+        .card h4:first-of-type {
+            margin-top: 20px;
+        }
+        
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-item {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .upload-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .upload-item:hover::before {
+            opacity: 0.05;
+        }
+        
+        .upload-item label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+        
+        .upload-item small {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: white;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        input[type="file"]:focus,
+        input[type="file"]:hover {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Field status indicator */
+        .field-status {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .field-status.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1d4ed8;
+        }
+        
+        .field-status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #b45309;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Tooltip icon */
+        .tooltip-icon {
+            margin-left: 5px;
+            color: #6b7280;
+            font-size: 0.85rem;
+            cursor: help;
+        }
+        
+        .btn {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background: var(--secondary-gradient);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger-gradient);
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.9), rgba(75, 85, 99, 0.8));
+        }
+        
+        .btn-warning {
+            background: var(--warning-gradient);
+        }
+        
+        .status {
+            margin: 25px 0;
+            padding: 18px 25px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #047857;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .status.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1d4ed8;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #b45309;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: var(--shadow-md);
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.95rem;
+        }
+        
+        th {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        tr:hover {
+            background: rgba(37, 99, 235, 0.03);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-card.danger::before {
+            background: var(--danger-gradient);
+        }
+        
+        .stat-card.warning::before {
+            background: var(--warning-gradient);
+        }
+        
+        .stat-card.success::before {
+            background: var(--secondary-gradient);
+        }
+        
+        .stat-card h4 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: var(--bg-secondary);
+            margin: 10% auto;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        .temp-entries {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .temp-entries h4 {
+            color: #b45309;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Enhanced temp entries summary */
+        .entries-summary {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+        }
+        
+        .entries-summary small {
+            color: #1d4ed8;
+        }
+        
+        /* Status badges */
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0 2px;
+        }
+        
+        .badge.new-product {
+            background: rgba(37, 99, 235, 0.1);
+            color: #1d4ed8;
+        }
+        
+        .badge.new-supplier {
+            background: rgba(16, 185, 129, 0.1);
+            color: #047857;
+        }
+        
+        .badge.new-warehouse {
+            background: rgba(139, 92, 246, 0.1);
+            color: #6d28d9;
+        }
+        
+        .badge.existing {
+            background: rgba(107, 114, 128, 0.1);
+            color: #4b5563;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-content {
+                padding: 25px;
+            }
+            
+            .form-grid,
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1><i class="fas fa-chart-line"></i> InvenTrack Pro</h1>
+        </div>
+        <p>Professional Inventory Analytics & Prediction Platform</p>
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('upload')">
+                <i class="fas fa-upload"></i> Bulk Upload
+            </button>
+            <button class="tab" onclick="showTab('single')">
+                <i class="fas fa-plus-circle"></i> Single Entry
+            </button>
+            <button class="tab" onclick="showTab('analyze')">
+                <i class="fas fa-analytics"></i> Analytics
+            </button>
+        </div>
+        
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content active">
+            <div class="card">
+                <h3><i class="fas fa-cloud-upload-alt"></i> Bulk CSV Upload</h3>
+                <div class="upload-grid">
+                    <div class="upload-item">
+                        <label><i class="fas fa-box"></i> Products CSV</label>
+                        <input type="file" id="products" accept=".csv" />
+                        <small>Required: product_id, product_name, category, reorder_level, unit_price</small>
+                    </div>
+                    <div class="upload-item">
+                        <label><i class="fas fa-warehouse"></i> Inventory CSV</label>
+                        <input type="file" id="inventory" accept=".csv" />
+                        <small>Required: product_id, warehouse_id, quantity_available, last_updated</small>
+                    </div>
+                    <div class="upload-item">
+                        <label><i class="fas fa-building"></i> Warehouses CSV</label>
+                        <input type="file" id="warehouses" accept=".csv" />
+                        <small>Required: warehouse_id, location_name</small>
+                    </div>
+                    <div class="upload-item">
+                        <label><i class="fas fa-shopping-cart"></i> Orders CSV</label>
+                        <input type="file" id="orders" accept=".csv" />
+                        <small>Required: order_id, product_id, supplier_id, quantity_ordered, order_date, delivery_date</small>
+                    </div>
+                    <div class="upload-item">
+                        <label><i class="fas fa-truck"></i> Suppliers CSV</label>
+                        <input type="file" id="suppliers" accept=".csv" />
+                        <small>Required: supplier_id, supplier_name, avg_lead_time_days, quality_score</small>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="uploadFiles()">
+                        <i class="fas fa-upload"></i> Upload Files
+                    </button>
+                    <button class="btn btn-success" onclick="processData()">
+                        <i class="fas fa-brain"></i> Process & Predict
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadResults()">
+                        <i class="fas fa-download"></i> Download Results
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Single Entry Tab -->
+        <div id="single-tab" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Add Single Inventory Entry</h3>
+                
+                <div id="temp-entries-container"></div>
+                
+                <form id="single-entry-form">
+                    <h4 style="color: #2563eb; margin-bottom: 20px; margin-top: 30px;"><i class="fas fa-box"></i> Product Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-barcode"></i> Product ID <span style="color: #dc3545;">*</span></label>
+                            <input type="text" id="single_product_id" placeholder="e.g., P00001" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Product Name *</label>
+                            <input type="text" id="single_product_name" placeholder="e.g., Wireless Mouse" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-list"></i> Category *</label>
+                            <select id="single_category" required>
+                                <option value="">Select Category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Food">Food</option>
+                                <option value="Tools">Tools</option>
+                                <option value="Books">Books</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Home & Garden">Home & Garden</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-exclamation-triangle"></i> Reorder Level *</label>
+                            <input type="number" id="single_reorder_level" placeholder="e.g., 50" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Unit Price *</label>
+                            <input type="number" id="single_unit_price" placeholder="e.g., 29.99" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #2563eb; margin-bottom: 20px; margin-top: 30px;"><i class="fas fa-warehouse"></i> Inventory Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-warehouse"></i> Warehouse ID <span style="color: #dc3545;">*</span></label>
+                            <input type="text" id="single_warehouse_id" placeholder="e.g., W001" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Location Name *</label>
+                            <input type="text" id="single_location_name" placeholder="e.g., Chennai Warehouse" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-cubes"></i> Quantity Available *</label>
+                            <input type="number" id="single_quantity_available" placeholder="e.g., 100" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Last Updated</label>
+                            <input type="date" id="single_last_updated">
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #2563eb; margin-bottom: 20px; margin-top: 30px;"><i class="fas fa-truck"></i> Supplier Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-truck"></i> Supplier ID</label>
+                            <input type="text" id="single_supplier_id" placeholder="e.g., S001">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Supplier Name</label>
+                            <input type="text" id="single_supplier_name" placeholder="e.g., Tech Supplies Inc.">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-star"></i> Quality Score</label>
+                            <input type="number" id="single_quality_score" placeholder="e.g., 85" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i> Avg Lead Time (Days)</label>
+                            <input type="number" id="single_avg_lead_time_days" placeholder="e.g., 7" min="1">
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #2563eb; margin-bottom: 20px; margin-top: 30px;"><i class="fas fa-shopping-cart"></i> Order Information (Optional)</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-receipt"></i> Order ID</label>
+                            <input type="text" id="single_order_id" placeholder="e.g., O000001">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-boxes"></i> Quantity Ordered</label>
+                            <input type="number" id="single_quantity_ordered" placeholder="e.g., 50" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-check"></i> Order Date</label>
+                            <input type="date" id="single_order_date">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Delivery Date</label>
+                            <input type="date" id="single_delivery_date">
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button type="button" class="btn" onclick="addSingleEntry()">
+                            <i class="fas fa-plus"></i> Add to Temporary
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="predictSingleEntry()">
+                            <i class="fas fa-brain"></i> Predict Only
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="saveTempEntries()">
+                            <i class="fas fa-save"></i> Save All to Database
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="clearTempEntries()">
+                            <i class="fas fa-trash"></i> Clear Temporary
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div id="analyze-tab" class="tab-content">
+            <div class="stats-grid" id="stats-container">
+                <!-- Stats will be populated here -->
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-table"></i> Analysis Results</h3>
+                <div id="results-container"></div>
+            </div>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Save to Database</h3>
+            <p>Are you sure you want to save all temporary entries to the main database (python_layer.csv)? This action cannot be undone.</p>
+            <p><strong>Total entries to save: <span id="entry-count">0</span></strong></p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-danger" onclick="confirmSaveToDatabase()">
+                    <i class="fas fa-save"></i> Confirm Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = {};
+        let tempEntries = [];
+        let dropdownData = {
+            products: [],
+            suppliers: [],
+            warehouses: [],
+            categories: []
+        };
+        
+        // Load dropdown data on page load
+        async function loadDropdownData() {
+            try {
+                const response = await fetch('/get-dropdown-data/');
+                if (response.ok) {
+                    dropdownData = await response.json();
+                    populateDropdowns();
+                }
+            } catch (error) {
+                console.error('Error loading dropdown data:', error);
+            }
+        }
+        
+        // Populate dropdowns with existing data
+        function populateDropdowns() {
+            // Add datalists for auto-complete
+            
+            // Products datalist
+            let productDatalist = document.getElementById('product-list');
+            if (!productDatalist) {
+                productDatalist = document.createElement('datalist');
+                productDatalist.id = 'product-list';
+                document.body.appendChild(productDatalist);
+            }
+            productDatalist.innerHTML = dropdownData.products.map(p => 
+                `<option value="${p.product_id}">${p.product_name}</option>`
+            ).join('');
+            
+            // Suppliers datalist
+            let supplierDatalist = document.getElementById('supplier-list');
+            if (!supplierDatalist) {
+                supplierDatalist = document.createElement('datalist');
+                supplierDatalist.id = 'supplier-list';
+                document.body.appendChild(supplierDatalist);
+            }
+            supplierDatalist.innerHTML = dropdownData.suppliers.map(s => 
+                `<option value="${s.supplier_id}">${s.supplier_name}</option>`
+            ).join('');
+            
+            // Warehouses datalist
+            let warehouseDatalist = document.getElementById('warehouse-list');
+            if (!warehouseDatalist) {
+                warehouseDatalist = document.createElement('datalist');
+                warehouseDatalist.id = 'warehouse-list';
+                document.body.appendChild(warehouseDatalist);
+            }
+            warehouseDatalist.innerHTML = dropdownData.warehouses.map(w => 
+                `<option value="${w.warehouse_id}">${w.location_name}</option>`
+            ).join('');
+            
+            // Update input elements to use datalists
+            document.getElementById('single_product_id').setAttribute('list', 'product-list');
+            document.getElementById('single_supplier_id').setAttribute('list', 'supplier-list');
+            document.getElementById('single_warehouse_id').setAttribute('list', 'warehouse-list');
+        }
+        // Auto-fill functionality
+        
+        // Auto-fill functionality
+        async function autoFillData(fieldType, value) {
+            if (!value) return;
+            
+            const entryData = {};
+            entryData[fieldType + '_id'] = value;
+            
+            try {
+                const response = await fetch('/get-autofill-data/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entryData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    const autoFillData = result.auto_fill_data;
+                    
+                    // Auto-fill the fields
+                    for (const [key, value] of Object.entries(autoFillData)) {
+                        const field = document.getElementById('single_' + key);
+                        if (field && !field.value) {  // Only fill if field is empty
+                            field.value = value;
+                            // Add visual indicator that field was auto-filled
+                            field.style.backgroundColor = '#e8f5e9';
+                            setTimeout(() => {
+                                field.style.backgroundColor = '';
+                            }, 2000);
+                        }
+                    }
+                    
+                    // Show status based on whether data exists
+                    if (result.existing_product && fieldType === 'product') {
+                        showFieldStatus('single_product_id', 'Existing product - data auto-filled', 'info');
+                    } else if (result.existing_supplier && fieldType === 'supplier') {
+                        showFieldStatus('single_supplier_id', 'Existing supplier - data auto-filled', 'info');
+                    } else if (result.existing_warehouse && fieldType === 'warehouse') {
+                        showFieldStatus('single_warehouse_id', 'Existing warehouse - data auto-filled', 'info');
+                    } else {
+                        showFieldStatus('single_' + fieldType + '_id', 'New ' + fieldType + ' - will be added to database', 'warning');
+                    }
+                }
+            } catch (error) {
+                console.error('Error auto-filling data:', error);
+            }
+        }
+
+         
+        // Show field-specific status messages
+        function showFieldStatus(fieldId, message, type) {
+            const field = document.getElementById(fieldId);
+            const formGroup = field.closest('.form-group');
+            
+            // Remove any existing status
+            const existingStatus = formGroup.querySelector('.field-status');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            // Add new status
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `field-status ${type}`;
+            statusDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            formGroup.appendChild(statusDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                statusDiv.remove();
+            }, 3000);
+        }
+        
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Find and activate the clicked tab
+            event.target.classList.add('active');
+            
+            // Update temp entries display when showing single entry tab
+            if (tabName === 'single') {
+                updateTempEntriesDisplay();
+            }
+        }
+        
+        function showStatus(message, type = 'info', showLoading = false) {
+            const statusDiv = document.getElementById('status');
+            const loadingHtml = showLoading ? '<div class="loading"></div>' : '';
+            const icon = type === 'success' ? 'fas fa-check-circle' : 
+                       type === 'error' ? 'fas fa-exclamation-circle' : 
+                       type === 'warning' ? 'fas fa-exclamation-triangle' :
+                       'fas fa-info-circle';
+            statusDiv.innerHTML = `<div class="status ${type}"><i class="${icon}"></i> ${loadingHtml} ${message}</div>`;
+        }
+        
+        async function uploadFiles() {
+            const fileInputs = ['products', 'inventory', 'warehouses', 'orders', 'suppliers'];
+            const formData = new FormData();
+            
+            let allFilesSelected = true;
+            for (let input of fileInputs) {
+                const file = document.getElementById(input).files[0];
+                if (!file) {
+                    allFilesSelected = false;
+                    break;
+                }
+                formData.append(input, file);
+            }
+            
+            if (!allFilesSelected) {
+                showStatus('Please select all CSV files before uploading.', 'error');
+                return;
+            }
+            
+            showStatus('Uploading files...', 'info', true);
+            
+            try {
+                const response = await fetch('/upload-csvs/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('Files uploaded successfully!', 'success');
+                    await updateStats();
+                    // Reload dropdown data after upload
+                    await loadDropdownData();
+                } else {
+                    showStatus(`Upload failed: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Upload error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function processData() {
+            showStatus('Processing data and making predictions...', 'info', true);
+            
+            try {
+                const response = await fetch('/process-data/', { method: 'POST' });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus(`Data processed successfully! ${result.records_processed} records analyzed and saved to python_layer.csv`, 'success');
+                    displayResults(result.preview);
+                    await updateStats();
+                    currentData = result;
+                } else {
+                    showStatus(`Processing failed: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Processing error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function addSingleEntry() {
+            const entryData = {
+                // Product info
+                product_id: document.getElementById('single_product_id').value,
+                product_name: document.getElementById('single_product_name').value,
+                category: document.getElementById('single_category').value,
+                reorder_level: parseInt(document.getElementById('single_reorder_level').value),
+                unit_price: parseFloat(document.getElementById('single_unit_price').value),
+                
+                // Inventory info
+                warehouse_id: document.getElementById('single_warehouse_id').value,
+                location_name: document.getElementById('single_location_name').value,
+                quantity_available: parseInt(document.getElementById('single_quantity_available').value),
+                last_updated: document.getElementById('single_last_updated').value,
+                
+                // Supplier info
+                supplier_id: document.getElementById('single_supplier_id').value ,
+                supplier_name: document.getElementById('single_supplier_name').value ,
+                quality_score: parseFloat(document.getElementById('single_quality_score').value),
+                avg_lead_time_days: parseInt(document.getElementById('single_avg_lead_time_days').value),
+                
+                // Order info (optional)
+                order_id: document.getElementById('single_order_id').value || '',
+                quantity_ordered: parseInt(document.getElementById('single_quantity_ordered').value) || 0,
+                order_date: document.getElementById('single_order_date').value || '',
+                delivery_date: document.getElementById('single_delivery_date').value || ''
+            };
+            
+            // Validate required fields
+            if (!entryData.product_id || !entryData.warehouse_id) {
+                showStatus('Please fill Product ID and Warehouse ID at minimum', 'error');
+                return;
+            }
+            
+            showStatus('Processing entry...', 'info', true);
+            
+            try {
+                const response = await fetch('/add-single-entry/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entryData)
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    tempEntries = result.temp_entries;
+                    
+                    // Show which fields were auto-filled
+                    if (result.auto_filled_fields && result.auto_filled_fields.length > 0) {
+                        showStatus(`Entry added. Auto-filled: ${result.auto_filled_fields.join(', ')}`, 'success');
+                    } else {
+                        showStatus('Entry added to temporary storage', 'success');
+                    }
+                    
+                    updateTempEntriesDisplay();
+                    
+                    // Clear form but keep defaults
+                    document.getElementById('single-entry-form').reset();
+                    document.getElementById('single_last_updated').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('single_quality_score').value = '80';
+                    document.getElementById('single_avg_lead_time_days').value = '7';
+                    
+                    // Reload dropdown data to include new entries
+                    loadDropdownData();
+                } else {
+                    showStatus(`Failed to add entry: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function predictSingleEntry() {
+            const entryData = {
+                // Product info
+                product_id: document.getElementById('single_product_id').value,
+                product_name: document.getElementById('single_product_name').value,
+                category: document.getElementById('single_category').value,
+                reorder_level: parseInt(document.getElementById('single_reorder_level').value),
+                unit_price: parseFloat(document.getElementById('single_unit_price').value),
+                
+                // Inventory info
+                warehouse_id: document.getElementById('single_warehouse_id').value,
+                location_name: document.getElementById('single_location_name').value,
+                quantity_available: parseInt(document.getElementById('single_quantity_available').value),
+                last_updated: document.getElementById('single_last_updated').value,
+                
+                // Supplier info
+                supplier_id: document.getElementById('single_supplier_id').value || 'S001',
+                supplier_name: document.getElementById('single_supplier_name').value || 'Default Supplier',
+                quality_score: parseFloat(document.getElementById('single_quality_score').value) || 80,
+                avg_lead_time_days: parseInt(document.getElementById('single_avg_lead_time_days').value) || 7,
+                
+                // Order info (optional)
+                order_id: document.getElementById('single_order_id').value || '',
+                quantity_ordered: parseInt(document.getElementById('single_quantity_ordered').value) || 0,
+                order_date: document.getElementById('single_order_date').value || '',
+                delivery_date: document.getElementById('single_delivery_date').value || ''
+            };
+            
+            // Validate required fields
+            if (!entryData.product_id || !entryData.product_name || !entryData.category || 
+                !entryData.warehouse_id || !entryData.location_name || isNaN(entryData.quantity_available)) {
+                showStatus('Please fill all required fields', 'error');
+                return;
+            }
+            
+            showStatus('Making prediction...', 'info', true);
+            
+            try {
+                const response = await fetch('/predict-single-entry/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(entryData)
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus(`Prediction complete! Needs Reorder: ${result.needs_reorder ? 'YES' : 'NO'}`, 'success');
+                    displayResults([result.preview]);
+                } else {
+                    showStatus(`Prediction failed: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateTempEntriesDisplay() {
+            const container = document.getElementById('temp-entries-container');
+            
+            if (tempEntries.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = `
+                <div class="temp-entries">
+                    <h4><i class="fas fa-clock"></i> Temporary Entries (${tempEntries.length})</h4>
+                    <div class="entries-summary">
+                        <small>
+                            <i class="fas fa-info-circle"></i>
+                            ${tempEntries.length} entries ready to save. 
+                            New products: ${countNewItems('product_id')}, 
+                            New suppliers: ${countNewItems('supplier_id')}, 
+                            New warehouses: ${countNewItems('warehouse_id')}
+                        </small>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product ID</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Warehouse</th>
+                                    <th>Supplier</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            tempEntries.forEach((entry, index) => {
+                const isNewProduct = !dropdownData.products.some(p => p.product_id === entry.product_id);
+                const isNewSupplier = !dropdownData.suppliers.some(s => s.supplier_id === entry.supplier_id);
+                const isNewWarehouse = !dropdownData.warehouses.some(w => w.warehouse_id === entry.warehouse_id);
+                
+                let statusBadges = [];
+                if (isNewProduct) statusBadges.push('<span class="badge new-product">New Product</span>');
+                if (isNewSupplier) statusBadges.push('<span class="badge new-supplier">New Supplier</span>');
+                if (isNewWarehouse) statusBadges.push('<span class="badge new-warehouse">New Warehouse</span>');
+                
+                html += `
+                    <tr>
+                        <td>${entry.product_id}</td>
+                        <td>${entry.product_name}</td>
+                        <td>${entry.category}</td>
+                        <td>${entry.quantity_available}</td>
+                        <td>${entry.warehouse_id}</td>
+                        <td>${entry.supplier_id}</td>
+                        <td>${statusBadges.join(' ') || '<span class="badge existing">Existing</span>'}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.9rem;" onclick="removeTempEntry(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Helper function to count new items
+        function countNewItems(idField) {
+            const existingIds = {
+                'product_id': dropdownData.products.map(p => p.product_id),
+                'supplier_id': dropdownData.suppliers.map(s => s.supplier_id),
+                'warehouse_id': dropdownData.warehouses.map(w => w.warehouse_id)
+            };
+            
+            return tempEntries.filter(entry => 
+                !existingIds[idField].includes(entry[idField])
+            ).length;
+        }
+        
+        async function removeTempEntry(index) {
+            try {
+                const response = await fetch(`/remove-temp-entry/${index}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    tempEntries = result.temp_entries;
+                    showStatus('Entry removed', 'success');
+                    updateTempEntriesDisplay();
+                } else {
+                    showStatus(`Failed to remove entry: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function clearTempEntries() {
+            if (tempEntries.length === 0) {
+                showStatus('No temporary entries to clear', 'info');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to clear all ${tempEntries.length} temporary entries?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/clear-temp-entries/', {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    tempEntries = [];
+                    showStatus('All temporary entries cleared', 'success');
+                    updateTempEntriesDisplay();
+                } else {
+                    showStatus(`Failed to clear entries: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function saveTempEntries() {
+            if (tempEntries.length === 0) {
+                showStatus('No temporary entries to save', 'info');
+                return;
+            }
+            
+            document.getElementById('entry-count').textContent = tempEntries.length;
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        async function confirmSaveToDatabase() {
+            closeModal();
+            showStatus('Saving entries to database...', 'info', true);
+            
+            try {
+                const response = await fetch('/save-temp-to-database/', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    tempEntries = [];
+                    showStatus(`Successfully saved ${result.entries_saved} entries to database (python_layer.csv)`, 'success');
+                    updateTempEntriesDisplay();
+                    await updateStats();
+                } else {
+                    showStatus(`Failed to save: ${result.detail}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function downloadResults() {
+            try {
+                showStatus('Preparing download...', 'info', true);
+                const response = await fetch('/download-results/');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `inventory_results_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    showStatus('Results downloaded successfully!', 'success');
+                } else {
+                    showStatus('Download failed. Please process data first.', 'error');
+                }
+            } catch (error) {
+                showStatus(`Download error: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayResults(preview) {
+            if (!preview || preview.length === 0) return;
+            
+            const container = document.getElementById('results-container');
+            const columns = Object.keys(preview[0]);
+            
+            let table = '<div class="table-container"><table><thead><tr>';
+            columns.forEach(col => table += `<th>${col.replace(/_/g, ' ').toUpperCase()}</th>`);
+            table += '</tr></thead><tbody>';
+            
+            preview.slice(0, 15).forEach(row => {
+                table += '<tr>';
+                columns.forEach(col => {
+                    let value = row[col];
+                    if (value === null || value === undefined) {
+                        value = '-';
+                    } else if (typeof value === 'number') {
+                        value = isNaN(value) ? '-' : (value % 1 === 0 ? value : value.toFixed(2));
+                    }
+                    
+                    // Add color coding for status columns
+                    let cellClass = '';
+                    if (col === 'stock_status') {
+                        cellClass = value === 'OUT_OF_STOCK' ? 'style="color: #dc3545; font-weight: bold;"' :
+                                   value === 'REORDER_NEEDED' ? 'style="color: #fd7e14; font-weight: bold;"' :
+                                   value === 'LOW_STOCK' ? 'style="color: #ffc107; font-weight: bold;"' :
+                                   'style="color: #28a745; font-weight: bold;"';
+                    } else if (col === 'needs_reorder') {
+                        cellClass = value == 1 ? 'style="color: #dc3545; font-weight: bold;"' : 
+                                   'style="color: #28a745; font-weight: bold;"';
+                        value = value == 1 ? 'YES' : 'NO';
+                    }
+                    
+                    table += `<td ${cellClass}>${value}</td>`;
+                });
+                table += '</tr>';
+            });
+            
+            table += '</tbody></table></div>';
+            table += `<p style="text-align: center; margin-top: 15px; color: #6c757d;"><strong>Showing first ${Math.min(15, preview.length)} rows of ${preview.length} total records</strong></p>`;
+            
+            container.innerHTML = table;
+        }
+        
+        async function updateStats() {
+            try {
+                const response = await fetch('/get-stats/');
+                if (response.ok) {
+                    const stats = await response.json();
+                    displayStats(stats);
+                }
+            } catch (error) {
+                console.log('Stats not available yet');
+            }
+        }
+        
+        function displayStats(stats) {
+            const container = document.getElementById('stats-container');
+            
+            if (!stats || Object.keys(stats).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d;">No data loaded yet</p>';
+                return;
+            }
+            
+            let statsHtml = '';
+            
+            if (stats.total_products) {
+                statsHtml += `
+                    <div class="stat-card">
+                        <h4>Total Products</h4>
+                        <div class="number">${stats.total_products.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            if (stats.total_inventory_records) {
+                statsHtml += `
+                    <div class="stat-card">
+                        <h4>Inventory Records</h4>
+                        <div class="number">${stats.total_inventory_records.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            if (stats.out_of_stock) {
+                statsHtml += `
+                    <div class="stat-card danger">
+                        <h4>Out of Stock</h4>
+                        <div class="number">${stats.out_of_stock.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            if (stats.reorder_needed) {
+                statsHtml += `
+                    <div class="stat-card warning">
+                        <h4>Reorder Needed</h4>
+                        <div class="number">${stats.reorder_needed.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            if (stats.total_stock_value !== undefined && stats.total_stock_value !== null) {
+                statsHtml += `
+                    <div class="stat-card success">
+                        <h4>Total Stock Value</h4>
+                        <div class="number">${stats.total_stock_value.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = statsHtml;
+        }
+        
+        // Add helpful tooltips
+        function addTooltips() {
+            const tooltips = {
+                'single_product_id': 'Enter existing product ID for auto-fill or new ID to create',
+                'single_supplier_id': 'Enter existing supplier ID for auto-fill or new ID to create',
+                'single_warehouse_id': 'Enter existing warehouse ID for auto-fill or new ID to create',
+                'single_quality_score': 'Supplier quality score (0-100)',
+                'single_avg_lead_time_days': 'Average delivery time in days'
+            };
+            
+            for (const [fieldId, tooltip] of Object.entries(tooltips)) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.setAttribute('title', tooltip);
+                    
+                    // Add info icon next to label
+                    const label = field.parentElement.querySelector('label');
+                    if (label && !label.querySelector('.tooltip-icon')) {
+                        const icon = document.createElement('i');
+                        icon.className = 'fas fa-question-circle tooltip-icon';
+                        icon.setAttribute('title', tooltip);
+                        label.appendChild(icon);
+                    }
+                }
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date
+            document.getElementById('single_last_updated').value = new Date().toISOString().split('T')[0];
+            
+            updateStats();
+            loadTempEntries();
+            
+            // Load dropdown data
+            loadDropdownData();
+            
+            // Add event listeners for auto-fill
+            document.getElementById('single_product_id').addEventListener('blur', function() {
+                autoFillData('product', this.value);
+            });
+            
+            document.getElementById('single_supplier_id').addEventListener('blur', function() {
+                autoFillData('supplier', this.value);
+            });
+            
+            document.getElementById('single_warehouse_id').addEventListener('blur', function() {
+                autoFillData('warehouse', this.value);
+            });
+            
+            // Add tooltips for better UX
+            addTooltips();
+        });
+        
+        async function loadTempEntries() {
+            try {
+                const response = await fetch('/get-temp-entries/');
+                if (response.ok) {
+                    const result = await response.json();
+                    tempEntries = result.temp_entries;
+                    updateTempEntriesDisplay();
+                }
+            } catch (error) {
+                console.log('Error loading temp entries:', error);
+            }
+        }
+    </script>
+</body>
+</html>
