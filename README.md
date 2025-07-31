@@ -61,4 +61,7 @@ Products Analysis:
 
 Final output:
 
-<img width="406" height="382" alt="image" src="https://github.com/user-attachments/assets/2cdfa9a7-a49f-4281-a672-2da34447c2c1" />
+<img width="1237" height="532" alt="image" src="https://github.com/user-attachments/assets/d910d862-8415-40ba-9910-4c6c4bf551d5" />
+
+
+<img width="1234" height="629" alt="image" src="https://github.com/user-attachments/assets/68d3333f-f0b9-4e8d-968c-3bd3a1fb332b" />
